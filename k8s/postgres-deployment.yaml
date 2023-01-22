@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  # Specify the number of identical pods that can be created with the below specified template
+  replicas: 1
+  selector:
+    matchLabels:
+      component: posgtres
+  template:
+    metadata:
+      labels:
+        component: posgtres
+    spec:
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: database-pvc-claim
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: "password"
+              # Taking the value of password from secrets
+              # valueFrom:
+              #   secretKeyRef:
+              #     name: passwords
+              #     key: PGPASSWORD
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+              # A folder with name postgres will be created inside the volume <postgres-storage> where postgres data will be stored
+              subPath: postgres
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"

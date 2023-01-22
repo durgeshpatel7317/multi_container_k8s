@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  # Specify the number of identical pods that can be created with the below specified template
+  replicas: 1
+  selector:
+    matchLabels:
+      component: server
+  template:
+    metadata:
+      labels:
+        component: server
+    spec:
+      containers:
+        - name: server
+          image: durgeshpatel317/multi-server
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: "6379"
+            - name: PGUSER
+              value: "postgres"
+            - name: PGHOST
+              value: "postgres-cluster-ip-service"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: "postgres"
+            - name : PGPASSWORD
+              value: "password"
+              # Taking the value of password from secrets
+              # valueFrom:
+              #   secretKeyRef:
+              #     name: passwords
+              #     key: PGPASSWORD
+              
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
