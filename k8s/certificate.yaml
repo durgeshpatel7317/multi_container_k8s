@@ -1,0 +1,21 @@
+# # TODO: Only needed for production deployment in order to get certificate
+# apiVersion: certmanager.k8s.io/v1alpha1
+# kind: Certificate
+# metadata:
+#   name: k8s-multi-com-tls # Or may be <domain name>-tls
+# spec:
+#   secretName: k8s-multi-com # Or may be <domain name>
+#   issuerRef:
+#     name: letsencrypt-prod
+#     kind: ClusterIssuer
+#   commonName: <domain name>
+#   dnsNames:
+#     - <domain name>
+#     - www.<domain name>
+#   acme:
+#     config:
+#       - http01:
+#           ingressClass: nginx
+#         domains:
+#           - <domain name>
+#           - www.<domain name>

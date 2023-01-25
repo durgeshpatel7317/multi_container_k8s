@@ -1,0 +1,28 @@
+sudo: required
+services:
+  - docker
+env:
+  global:
+    - SHA=$(git rev-parse HEAD)
+    # Disable the prompts from gke, becuase we do not have access to the prompts in travis
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+before_install:
+  - <add the complete command provided by travis after encryption of service account file>
+  - curl https://sdk.cloud.google.com | bash > /dev/null;
+  - source $HOME/google-cloud-sdk/path.bash.inc
+  - gcloud components update kubectl
+  - gcloud auth activate-service-account --key-file service-account.json
+  - gcloud config set project <gcloud k8s projectId>
+  - gcloud config set config/zone <location code from gcloud k8s project>
+  - gcloud container clusters get-credentials <gcloud k8s project cluster name>
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t durgeshpatel317/react-test ./client/Dockerfile.dev ./client
+
+script:
+  - docker run durgeshpatel317/react-test npm run test -- --coverage
+
+deploy:
+  provider: script
+  script: sh ./deploy.sh
+  on:
+    branch: master
